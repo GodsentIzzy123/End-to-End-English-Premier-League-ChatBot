@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premier League Chatbot</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+        font-family: Arial, sans-serif;
+        background-image: url("{{ url_for('static', filename='epl.jpg') }}");
+        background-size: auto;
+        background-repeat: repeat;
+        background-position: top left;
+    }
+        .wrapper {
+            max-width: 600px;
+            margin: 50px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .box {
+            min-height: 300px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            padding-right: 10px;
+        }
+        .item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        .item.right {
+            justify-content: flex-end;
+        }
+        .icon {
+            margin-right: 10px;
+        }
+        .msg {
+            background: #f1f1f1;
+            padding: 10px;
+            border-radius: 5px;
+            max-width: 80%;
+        }
+        .item.right .msg {
+            background: #d1e7dd;
+        }
+        .typing-area {
+            display: flex;
+            gap: 10px; /* Optional spacing between input and button */
+        }
+
+        .input-field {
+            display: flex;
+            width: 100%;
+        }
+
+        .input-field input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .input-field button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="title">Premier League Chatbot</div>
+        <div class="box" id="chat-box">
+            <div class="item">
+                <div class="icon"><i class="fa fa-user"></i></div>
+                <div class="msg"><p>Hello Football Fan, what can I help you with today?</p></div>
+            </div>
+        </div>
+        <div class="typing-area">
+            <div class="input-field">
+                <input type="text" id="msg" placeholder="Type your message" required>
+                <button onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function addMessage(message, isUser) {
+            const chatBox = document.getElementById('chat-box');
+            const item = document.createElement('div');
+            item.className = 'item' + (isUser ? ' right' : '');
+            
+            const msg = document.createElement('div');
+            msg.className = 'msg';
+            msg.innerHTML = `<p>${message}</p>`;
+            item.appendChild(msg);
+            
+            chatBox.appendChild(item);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function sendMessage() {
+            const inputField = document.getElementById('msg');
+            const message = inputField.value.trim();
+            if (!message) return;
+
+            addMessage(message, true);
+            inputField.value = "";
+
+            fetch("/get", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: `msg=${encodeURIComponent(message)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                addMessage(data.response, false);
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                addMessage("Sorry, there was an error. Please try again.", false);
+            });
+        }
+    </script>
+</body>
+</html>
