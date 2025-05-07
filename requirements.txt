@@ -2,6 +2,7 @@ sentence-transformers
 langchain
 flask
 pypdf
+requests
 python-dotenv
 pinecone[grpc]
 langchain-pinecone
